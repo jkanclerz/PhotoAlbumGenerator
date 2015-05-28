@@ -1,0 +1,64 @@
+{% extends 'Layout/base.html.twig' %}
+
+{%  block content %}
+ 	<div class="row">
+        <div class="container">
+            <div class="jumbotron">
+              <h1>Create Own Photo Album</h1>
+              <p>Fantastic App</p>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <form 
+                action="/file/upload"
+                method="POST"
+                enctype="multipart/form-data"
+                class="dropzone" 
+                id="dropzone"
+                data-paramname="uploadedFile"
+            >
+
+                <div class="fallback">
+                    <input name="file" type="file" multiple="" />
+                </div>
+            </form>
+        </div>
+        <div class="col-md-6" id="gallery">
+        </div>
+        
+    </div>
+{%  endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script type="text/javascript">
+    var myImageTemplate = [
+        '<div class="col-xs-6 col-md-3">',
+            '<span href="" class="thumbnail">',
+              '<img class="img-responsive" src="<%= webPath %>" data-path="<%= path %>" />',
+            '</span>',
+        '</div>'
+    ].join("\n");
+    
+
+        var myDropzone = new Dropzone("#dropzone" , {
+            paramName: $('#dropzone').data('paramname'), // The name that will be used to transfer the file
+            maxFilesize: 1, // MB
+            init: function() {
+                this.on('success', function (file, data) {
+                    $('#dropzone .dz-success').remove();
+                    if ($('#dropzone .dz-preview').length == 0) {
+                        $('#dropzone').removeClass('dz-started');
+                    }
+                    var image = _.template(myImageTemplate);
+                    $('#gallery').append(image(data));
+                });
+                this.on('sending', function (file, xhr, formData) {
+                    formData.append($('#dropzone').data('token-full-name'), $('#dropzone').data('token-value'));
+                });
+            }
+      });
+    
+    </script>
+{% endblock %}
+
